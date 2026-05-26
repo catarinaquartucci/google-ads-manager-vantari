@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Ads Manager — Design Document</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.65;
+      color: #1a1a2e;
+      background: #fff;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 48px 56px;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 80px 0 60px;
+      border-bottom: 3px solid #1a73e8;
+      margin-bottom: 56px;
+      page-break-after: always;
+    }
+    .cover-badge {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #1a73e8;
+      font-size: 9pt;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: 28px;
+    }
+    .cover h1 {
+      font-size: 30pt;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .cover h1 span { color: #1a73e8; }
+    .cover .subtitle {
+      font-size: 13pt;
+      color: #5f6368;
+      margin-bottom: 40px;
+    }
+    .cover-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 40px;
+      font-size: 10pt;
+      color: #3c4043;
+      border-top: 1px solid #e8eaed;
+      padding-top: 28px;
+    }
+    .cover-meta .label { font-weight: 600; color: #1a1a2e; }
+
+    /* ── Table of contents ── */
+    .toc { margin-bottom: 56px; page-break-after: always; }
+    .toc h2 { font-size: 14pt; font-weight: 700; margin-bottom: 18px; color: #1a1a2e; border-bottom: 2px solid #1a73e8; padding-bottom: 8px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { padding: 4px 0; font-size: 10.5pt; }
+    .toc a { color: #1a73e8; text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    .toc .sub { padding-left: 20px; font-size: 10pt; color: #5f6368; }
+
+    /* ── Sections ── */
+    section { margin-bottom: 48px; }
+    h2.sec {
+      font-size: 16pt;
+      font-weight: 700;
+      color: #1a1a2e;
+      border-left: 4px solid #1a73e8;
+      padding-left: 14px;
+      margin-bottom: 20px;
+      margin-top: 8px;
+    }
+    h3 { font-size: 12pt; font-weight: 600; color: #1a1a2e; margin: 22px 0 10px; }
+    h4 { font-size: 10.5pt; font-weight: 600; color: #3c4043; margin: 14px 0 6px; }
+    p { margin-bottom: 10px; color: #3c4043; }
+
+    /* ── Info box ── */
+    .info-box {
+      background: #f8f9fa;
+      border-left: 4px solid #1a73e8;
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      margin: 16px 0;
+      font-size: 10.5pt;
+    }
+    .info-box.green { border-color: #34a853; background: #f0f9f4; }
+    .info-box.yellow { border-color: #fbbc04; background: #fffce8; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 10pt; }
+    th { background: #1a73e8; color: #fff; font-weight: 600; text-align: left; padding: 9px 12px; }
+    td { padding: 8px 12px; border-bottom: 1px solid #e8eaed; vertical-align: top; }
+    tr:nth-child(even) td { background: #f8f9fa; }
+
+    /* ── Code ── */
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 9pt;
+      background: #f1f3f4;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #d93025;
+    }
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 16px 20px;
+      border-radius: 6px;
+      font-size: 9pt;
+      font-family: 'Courier New', monospace;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.6;
+    }
+    pre .comment { color: #6c7086; }
+    pre .keyword { color: #89b4fa; }
+    pre .string { color: #a6e3a1; }
+
+    /* ── Lists ── */
+    ul, ol { padding-left: 22px; margin-bottom: 10px; }
+    li { margin-bottom: 5px; color: #3c4043; }
+    li strong { color: #1a1a2e; }
+
+    /* ── Diagram ── */
+    .diagram {
+      background: #f8f9fa;
+      border: 1px solid #e8eaed;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 20px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 9.5pt;
+      color: #3c4043;
+      white-space: pre;
+      line-height: 1.7;
+    }
+
+    /* ── Feature cards ── */
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .card {
+      border: 1px solid #e8eaed;
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .card .icon { font-size: 18pt; margin-bottom: 8px; }
+    .card h4 { margin: 0 0 6px; font-size: 10.5pt; }
+    .card p { margin: 0; font-size: 9.5pt; color: #5f6368; }
+
+    /* ── Scope chip ── */
+    .chip {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #1a73e8;
+      border: 1px solid #c5d4fb;
+      border-radius: 20px;
+      padding: 3px 11px;
+      font-size: 9pt;
+      font-weight: 500;
+      margin: 2px 3px;
+    }
+    .chip.red { background: #fce8e6; color: #d93025; border-color: #f5b8b5; }
+    .chip.green { background: #e6f4ea; color: #137333; border-color: #a8d5b5; }
+
+    /* ── Page break ── */
+    .pagebreak { page-break-before: always; margin-top: 0; }
+
+    /* ── Footer ── */
+    @page { margin: 1.2cm 1.4cm; }
+    @media print {
+      body { padding: 0; max-width: 100%; }
+      .cover { min-height: auto; padding: 40px 0 30px; }
+      a { color: inherit !important; text-decoration: none !important; }
+    }
+
+    .footer-note {
+      margin-top: 60px;
+      padding-top: 16px;
+      border-top: 1px solid #e8eaed;
+      font-size: 9pt;
+      color: #80868b;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     COVER PAGE
+════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-badge">Google API Services — Developer Token Application</div>
+  <h1>Google <span>Ads Manager</span><br>Design Document</h1>
+  <p class="subtitle">Internal Campaign Management Platform powered by Google Ads API</p>
+  <div class="cover-meta">
+    <div><span class="label">Organization:</span> Marquesi Digital</div>
+    <div><span class="label">Document Version:</span> 1.0</div>
+    <div><span class="label">Target Users:</span> Internal team — Vantari</div>
+    <div><span class="label">Date:</span> May 2026</div>
+    <div><span class="label">API Version:</span> Google Ads API v17</div>
+    <div><span class="label">OAuth Scope:</span> adsense + adwords</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TABLE OF CONTENTS
+════════════════════════════════════════════════════ -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#overview">Executive Summary &amp; Tool Overview</a></li>
+    <li><a href="#users">Target Users &amp; Intended Use</a></li>
+    <li><a href="#architecture">Technical Architecture</a>
+      <ol class="sub">
+        <li><a href="#stack">Technology Stack</a></li>
+        <li><a href="#infra">Infrastructure &amp; Data Flow</a></li>
+      </ol>
+    </li>
+    <li><a href="#auth">OAuth 2.0 Authentication Flow</a></li>
+    <li><a href="#api-usage">Google Ads API Usage</a>
+      <ol class="sub">
+        <li><a href="#scopes">Scopes &amp; Permissions Requested</a></li>
+        <li><a href="#endpoints">API Endpoints Used</a></li>
+        <li><a href="#data-handling">Data Handling &amp; Storage</a></li>
+      </ol>
+    </li>
+    <li><a href="#features">Application Features</a>
+      <ol class="sub">
+        <li><a href="#dashboard">Dashboard</a></li>
+        <li><a href="#campaigns">Campaign Management</a></li>
+        <li><a href="#analytics">Analytics &amp; Reporting</a></li>
+        <li><a href="#ai">AI-Powered Features</a></li>
+        <li><a href="#rules">Automated Rules Engine</a></li>
+      </ol>
+    </li>
+    <li><a href="#security">Security &amp; Compliance</a></li>
+    <li><a href="#policy">Google API Services User Data Policy Compliance</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     1. OVERVIEW
+════════════════════════════════════════════════════ -->
+<section id="overview">
+  <h2 class="sec">1. Executive Summary &amp; Tool Overview</h2>
+
+  <p>
+    <strong>Google Ads Manager</strong> is a private, internal web application developed by Marquesi Digital exclusively for the internal use of the Vantari team. The tool provides a centralized, AI-augmented interface for managing, monitoring, and optimizing Google Ads campaigns at scale — without requiring direct access to the Google Ads web interface.
+  </p>
+  <p>
+    The application connects to the Google Ads API on behalf of authenticated internal users, enabling them to view campaign performance metrics, create and edit campaigns, apply bulk changes, analyze trends over custom date ranges, and leverage AI-driven recommendations for budget optimization and ad copy generation.
+  </p>
+
+  <div class="info-box">
+    <strong>Important:</strong> This is a strictly internal tool. It is not distributed to the public, not published on any app store, and not offered as a service to third parties. All Google Ads accounts accessed through this tool belong to or are managed by Marquesi Digital / Vantari.
+  </div>
+
+  <h3>Primary Objectives</h3>
+  <ul>
+    <li>Reduce context-switching by consolidating campaign management in a single internal dashboard</li>
+    <li>Accelerate campaign optimization with AI-generated insights and recommendations</li>
+    <li>Automate repetitive tasks (pausing underperforming campaigns, budget adjustments) through rule-based automation</li>
+    <li>Enable performance comparison across date ranges without exporting data manually</li>
+    <li>Generate on-brand ad copies faster using Claude AI with account context</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     2. USERS
+════════════════════════════════════════════════════ -->
+<section id="users">
+  <h2 class="sec">2. Target Users &amp; Intended Use</h2>
+
+  <h3>User Base</h3>
+  <p>
+    The application is intended exclusively for <strong>internal employees of Marquesi Digital</strong>, specifically members of the <strong>Vantari team</strong> — the paid media and performance marketing department responsible for managing Google Ads accounts on behalf of clients.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>User Type</th><th>Role</th><th>Access Level</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Media Analyst</strong></td>
+        <td>Day-to-day campaign monitoring, optimization, and reporting</td>
+        <td>Read + Write (campaigns, ad groups, ads)</td>
+      </tr>
+      <tr>
+        <td><strong>Media Manager</strong></td>
+        <td>Campaign creation, budget management, rule configuration</td>
+        <td>Full access including automated rules</td>
+      </tr>
+      <tr>
+        <td><strong>Account Strategist</strong></td>
+        <td>Analytics review, AI-assisted copy generation, period comparison</td>
+        <td>Read + AI features</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Account Ownership</h3>
+  <p>
+    All Google Ads customer accounts accessed through this tool are either:
+  </p>
+  <ul>
+    <li>Owned by Marquesi Digital / Vantari directly, or</li>
+    <li>Client accounts for which Marquesi Digital has been granted explicit manager (MCC) access by the account owner</li>
+  </ul>
+  <p>
+    No access is provided to accounts without prior authorization. The tool does not allow users to self-provision access to arbitrary Google Ads accounts.
+  </p>
+
+  <h3>Deployment Model</h3>
+  <p>
+    The frontend is deployed as a private web application hosted on Vercel/Netlify with no public listing. The backend operates as Supabase Edge Functions accessible only via authenticated API calls. There is no public sign-up flow — access is restricted to team members who authenticate with authorized Google Workspace accounts.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     3. ARCHITECTURE
+════════════════════════════════════════════════════ -->
+<section id="architecture" class="pagebreak">
+  <h2 class="sec">3. Technical Architecture</h2>
+
+  <h3 id="stack">3.1 Technology Stack</h3>
+
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Frontend</strong></td>
+        <td>React 18 + TypeScript + Vite</td>
+        <td>Single-page application, UI rendering</td>
+      </tr>
+      <tr>
+        <td><strong>UI Components</strong></td>
+        <td>Tailwind CSS + shadcn/ui (Radix UI)</td>
+        <td>Accessible, consistent design system</td>
+      </tr>
+      <tr>
+        <td><strong>State Management</strong></td>
+        <td>TanStack Query v5</td>
+        <td>Server state, caching, background refetches</td>
+      </tr>
+      <tr>
+        <td><strong>Backend / API Proxy</strong></td>
+        <td>Supabase Edge Functions (Deno)</td>
+        <td>Secure server-side API calls, token management</td>
+      </tr>
+      <tr>
+        <td><strong>Database</strong></td>
+        <td>Supabase PostgreSQL</td>
+        <td>OAuth token storage, user settings, rule logs</td>
+      </tr>
+      <tr>
+        <td><strong>Authentication</strong></td>
+        <td>Google OAuth 2.0</td>
+        <td>User identity + Google Ads API authorization</td>
+      </tr>
+      <tr>
+        <td><strong>Google Ads Integration</strong></td>
+        <td>Google Ads REST API v17</td>
+        <td>Campaign data retrieval and management</td>
+      </tr>
+      <tr>
+        <td><strong>AI Layer</strong></td>
+        <td>Anthropic Claude API (claude-sonnet-4-6)</td>
+        <td>Campaign analysis, copy generation, insights</td>
+      </tr>
+      <tr>
+        <td><strong>Charts</strong></td>
+        <td>Recharts</td>
+        <td>Time-series and performance visualizations</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 id="infra">3.2 Infrastructure &amp; Data Flow</h3>
+
+  <div class="diagram">
+┌──────────────────────────────────────────────────────────────────┐
+│                    INTERNAL USER (Browser)                       │
+│              React SPA — google-ads-manager.vantari.com.br       │
+└───────────────────────────┬──────────────────────────────────────┘
+                            │  HTTPS (authenticated requests)
+                            ▼
+┌──────────────────────────────────────────────────────────────────┐
+│               SUPABASE EDGE FUNCTIONS (Deno runtime)             │
+│                                                                  │
+│  ┌─────────────────────┐  ┌──────────────────┐  ┌────────────┐  │
+│  │  google-ads-proxy   │  │    claude-ai      │  │ auto-rules │  │
+│  │  (REST API proxy)   │  │  (AI assistant)   │  │  (cron job)│  │
+│  └──────────┬──────────┘  └────────┬─────────┘  └──────┬─────┘  │
+└─────────────┼────────────────────  ┼  ──────────────────┼────────┘
+              │                      │                     │
+              ▼                      ▼                     │
+┌──────────────────────┐  ┌─────────────────────┐         │
+│  Google Ads REST API │  │  Anthropic Claude   │         │
+│       v17            │  │       API           │         │
+└──────────────────────┘  └─────────────────────┘         │
+                                                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                    SUPABASE POSTGRESQL                           │
+│  oauth_tokens | user_settings | auto_rules | rule_logs          │
+└──────────────────────────────────────────────────────────────────┘</div>
+
+  <h4>Key Architectural Decisions</h4>
+  <ul>
+    <li><strong>No direct API calls from the browser:</strong> All Google Ads API calls are proxied through Supabase Edge Functions. OAuth tokens and the Developer Token are never exposed to the frontend.</li>
+    <li><strong>Token storage on server:</strong> Access and refresh tokens are stored encrypted in Supabase PostgreSQL, protected by Row-Level Security (RLS) policies. The browser only holds a user ID in <code>localStorage</code>.</li>
+    <li><strong>Automatic token refresh:</strong> The proxy function checks token expiry before every API call and refreshes silently when needed, without user intervention.</li>
+    <li><strong>Stateless Edge Functions:</strong> Each function invocation is independent and stateless, scaling automatically with demand.</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     4. AUTH FLOW
+════════════════════════════════════════════════════ -->
+<section id="auth" class="pagebreak">
+  <h2 class="sec">4. OAuth 2.0 Authentication Flow</h2>
+
+  <p>The application implements the <strong>Authorization Code Flow</strong> (server-side) as required for access to sensitive Google Ads data. The flow is as follows:</p>
+
+  <div class="diagram">
+  User Browser              Frontend (React)         Edge Function          Google OAuth
+       │                          │                        │                      │
+       │──── Open app ───────────►│                        │                      │
+       │                          │── Check localStorage   │                      │
+       │                          │   (no userId found)    │                      │
+       │◄─── Redirect /login ─────│                        │                      │
+       │                          │                        │                      │
+       │──── Click "Sign in" ────►│                        │                      │
+       │                          │── Build OAuth URL ─────┼──────────────────────┼──►
+       │◄─── Redirect to Google ──│   scope: adwords       │                      │
+       │                          │   + openid + email     │                      │
+       │                          │                        │                      │
+       │────────────────── User grants consent ────────────┼──────────────────────┤
+       │                          │                        │                      │
+       │◄─── Redirect /login ─────┼────────────────────────┼──── ?code=AUTH_CODE ─┘
+       │     ?code=AUTH_CODE      │                        │
+       │                          │── POST exchange_token ►│
+       │                          │   { code, redirectUri }│── POST to token URL ─►
+       │                          │                        │◄── { access_token,
+       │                          │                        │     refresh_token }
+       │                          │                        │── GET /userinfo ──────►
+       │                          │                        │◄── { id, email, name }
+       │                          │                        │
+       │                          │                        │── Store tokens in DB
+       │                          │                        │   (oauth_tokens table)
+       │                          │◄── { userId, email } ──│
+       │                          │── Save userId in
+       │                          │   localStorage
+       │◄─── Redirect /dashboard ─│
+       │                          │</div>
+
+  <h3>Token Management</h3>
+  <table>
+    <thead>
+      <tr><th>Token</th><th>Storage Location</th><th>Lifetime</th><th>Refresh Strategy</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Access Token</td>
+        <td>Supabase DB (server-side only)</td>
+        <td>1 hour</td>
+        <td>Auto-refreshed by proxy before expiry</td>
+      </tr>
+      <tr>
+        <td>Refresh Token</td>
+        <td>Supabase DB (server-side only)</td>
+        <td>Indefinite (until revoked)</td>
+        <td>Used to obtain new access tokens</td>
+      </tr>
+      <tr>
+        <td>User ID</td>
+        <td>Browser <code>localStorage</code></td>
+        <td>Session</td>
+        <td>Cleared on sign-out</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-box green">
+    <strong>Security note:</strong> The <code>client_secret</code>, Developer Token, and OAuth tokens are never sent to or stored in the browser. All sensitive credentials reside exclusively in server-side environment variables and the Supabase database.
+  </div>
+
+  <h3>OAuth Scopes Requested</h3>
+  <p>The application requests the minimum necessary scopes:</p>
+  <br>
+  <span class="chip">https://www.googleapis.com/auth/adwords</span>
+  <span class="chip">openid</span>
+  <span class="chip">https://www.googleapis.com/auth/userinfo.email</span>
+  <span class="chip">https://www.googleapis.com/auth/userinfo.profile</span>
+  <br><br>
+  <p>The <code>adwords</code> scope is required to read campaign performance data and perform campaign management operations on behalf of the authenticated user.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     5. API USAGE
+════════════════════════════════════════════════════ -->
+<section id="api-usage" class="pagebreak">
+  <h2 class="sec">5. Google Ads API Usage</h2>
+
+  <h3 id="scopes">5.1 Scopes &amp; Permissions</h3>
+  <p>All API calls are made with the <code>https://www.googleapis.com/auth/adwords</code> scope, which grants the ability to view and manage Google Ads accounts. The tool uses both read and write operations, as documented below.</p>
+
+  <h3 id="endpoints">5.2 API Endpoints Used</h3>
+  <p>All requests target the <strong>Google Ads REST API v17</strong> at <code>https://googleads.googleapis.com/v17/</code>.</p>
+
+  <table>
+    <thead>
+      <tr><th>Endpoint</th><th>Method</th><th>Operation</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/customers/{id}/googleAds:search</code></td>
+        <td>POST</td>
+        <td>READ</td>
+        <td>Execute GAQL queries to fetch campaigns, ad groups, ads, and metrics</td>
+      </tr>
+      <tr>
+        <td><code>/customers/{id}/campaigns:mutate</code></td>
+        <td>POST</td>
+        <td>WRITE</td>
+        <td>Create, update, pause, or enable campaigns</td>
+      </tr>
+      <tr>
+        <td><code>/customers/{id}/adGroups:mutate</code></td>
+        <td>POST</td>
+        <td>WRITE</td>
+        <td>Create, update, pause, or enable ad groups</td>
+      </tr>
+      <tr>
+        <td><code>/customers/{id}/adGroupAds:mutate</code></td>
+        <td>POST</td>
+        <td>WRITE</td>
+        <td>Create, update, pause, or enable responsive search ads</td>
+      </tr>
+      <tr>
+        <td><code>/customers/{id}/campaignBudgets:mutate</code></td>
+        <td>POST</td>
+        <td>WRITE</td>
+        <td>Create and update campaign budgets</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>GAQL Queries Executed</h3>
+  <p>The application uses Google Ads Query Language (GAQL) to retrieve structured performance data. Examples of queries executed:</p>
+
+  <pre><span class="comment">-- Campaign performance with budget and metrics</span>
+<span class="keyword">SELECT</span> campaign.id, campaign.name, campaign.status,
+       campaign.advertising_channel_type,
+       campaign.bidding_strategy_type,
+       campaign_budget.amount_micros, campaign_budget.id,
+       metrics.impressions, metrics.clicks, metrics.average_cpc,
+       metrics.cost_micros, metrics.conversions,
+       metrics.all_conversions_value,
+       metrics.search_impression_share
+<span class="keyword">FROM</span> campaign
+<span class="keyword">WHERE</span> segments.date <span class="keyword">DURING</span> LAST_30_DAYS
+<span class="keyword">ORDER BY</span> metrics.cost_micros <span class="keyword">DESC</span></pre>
+
+  <pre><span class="comment">-- Time series for performance charts</span>
+<span class="keyword">SELECT</span> segments.date, metrics.impressions, metrics.clicks,
+       metrics.cost_micros, metrics.conversions,
+       metrics.all_conversions_value
+<span class="keyword">FROM</span> campaign
+<span class="keyword">WHERE</span> segments.date <span class="keyword">DURING</span> LAST_30_DAYS
+<span class="keyword">ORDER BY</span> segments.date</pre>
+
+  <h3 id="data-handling">5.3 Data Handling &amp; Storage</h3>
+
+  <table>
+    <thead>
+      <tr><th>Data Type</th><th>Source</th><th>Stored?</th><th>Retention</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>OAuth Access Token</td>
+        <td>Google OAuth</td>
+        <td>Yes — Supabase DB</td>
+        <td>Overwritten on each refresh (~1h)</td>
+      </tr>
+      <tr>
+        <td>OAuth Refresh Token</td>
+        <td>Google OAuth</td>
+        <td>Yes — Supabase DB</td>
+        <td>Until user revokes access</td>
+      </tr>
+      <tr>
+        <td>User email / name</td>
+        <td>Google userinfo API</td>
+        <td>Yes — Supabase DB</td>
+        <td>Until account deletion</td>
+      </tr>
+      <tr>
+        <td>Campaign metrics</td>
+        <td>Google Ads API</td>
+        <td>No — in-memory only</td>
+        <td>Not persisted; fetched on demand</td>
+      </tr>
+      <tr>
+        <td>Ad content (headlines, descriptions)</td>
+        <td>Google Ads API</td>
+        <td>No — in-memory only</td>
+        <td>Not persisted; fetched on demand</td>
+      </tr>
+      <tr>
+        <td>Auto-rule execution logs</td>
+        <td>Generated internally</td>
+        <td>Yes — Supabase DB</td>
+        <td>90 days</td>
+      </tr>
+      <tr>
+        <td>Customer ID</td>
+        <td>User input</td>
+        <td>Yes — Supabase DB + localStorage</td>
+        <td>Until account deletion</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-box yellow">
+    <strong>No third-party sharing:</strong> Google Ads data retrieved via the API is used exclusively within the application to render the user interface. It is never sold, shared with third parties, used for advertising purposes, or sent to any external service other than the Anthropic Claude API for AI analysis — and only when the user explicitly invokes an AI feature.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     6. FEATURES
+════════════════════════════════════════════════════ -->
+<section id="features" class="pagebreak">
+  <h2 class="sec">6. Application Features</h2>
+
+  <h3 id="dashboard">6.1 Dashboard</h3>
+  <p>The main dashboard displays an aggregated overview of all active campaigns for the selected Google Ads account and date range.</p>
+  <ul>
+    <li>Summary KPI cards: total spend, impressions, clicks, conversions, average ROAS</li>
+    <li>Campaign table with sortable columns: status badge, budget, impressions, clicks, CTR, cost, conversions, ROAS</li>
+    <li>Quick actions per campaign: pause, enable, edit (via dropdown menu)</li>
+    <li>Date range selector: Last 7, 14, 30, or 90 days</li>
+    <li>Automatic data refresh every 5 minutes via TanStack Query stale-time configuration</li>
+  </ul>
+
+  <h3 id="campaigns">6.2 Campaign Management</h3>
+  <p>Full CRUD operations for the three core Google Ads entities:</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="icon">📢</div>
+      <h4>Campaigns</h4>
+      <p>Create with name, channel type, bidding strategy (Target CPA, ROAS, Maximize Conversions), daily budget. Edit name, status, budget. Pause / enable in one click.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📁</div>
+      <h4>Ad Groups</h4>
+      <p>Create ad groups within campaigns, set CPC bids, manage status. View metrics per ad group with campaign context.</p>
+    </div>
+    <div class="card">
+      <div class="icon">✏️</div>
+      <h4>Responsive Search Ads</h4>
+      <p>Create RSAs with up to 15 headlines (≤30 chars) and 4 descriptions (≤90 chars). Character count validation. Pin headlines to specific positions.</p>
+    </div>
+    <div class="card">
+      <div class="icon">💰</div>
+      <h4>Budgets</h4>
+      <p>Create new budgets when creating campaigns. Update daily budget amounts on existing campaigns via campaignBudgets:mutate.</p>
+    </div>
+  </div>
+
+  <h3 id="analytics">6.3 Analytics &amp; Reporting</h3>
+  <ul>
+    <li><strong>Time-series charts:</strong> Interactive line charts (Recharts) showing impressions, clicks, cost, conversions, CTR, and ROAS over the selected period. Metrics can be toggled individually.</li>
+    <li><strong>Period comparison:</strong> Side-by-side comparison of two date ranges with absolute and percentage change indicators for 8 key metrics.</li>
+    <li><strong>Per-campaign drill-down:</strong> Click any campaign to view ad group and ad-level performance breakdowns.</li>
+    <li><strong>Export:</strong> Users can use browser-native print/save functionality to export charts and tables.</li>
+  </ul>
+
+  <h3 id="ai">6.4 AI-Powered Features</h3>
+  <p>Four AI modules powered by the Anthropic Claude API (model: <code>claude-sonnet-4-6</code>):</p>
+
+  <table>
+    <thead>
+      <tr><th>Module</th><th>API Data Sent to Claude</th><th>Output</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>AI Assistant</strong><br>(chat)</td>
+        <td>Top 3 and bottom 3 campaigns by ROAS (name, cost, conversions, CTR, ROAS) — no PII</td>
+        <td>Natural language analysis, optimization recommendations, answers to user questions</td>
+      </tr>
+      <tr>
+        <td><strong>Copy Generator</strong></td>
+        <td>Product/service description, target audience, campaign objective (user-typed text only — no API data)</td>
+        <td>15 headlines (≤30 chars) + 4 descriptions (≤90 chars) compliant with Google RSA limits</td>
+      </tr>
+      <tr>
+        <td><strong>Scale Calculator</strong></td>
+        <td>Current ROAS and budget (user-selected campaign metrics)</td>
+        <td>Projected ROAS curve at 1×–5× budget with efficiency decay model</td>
+      </tr>
+      <tr>
+        <td><strong>Creative Fatigue Detector</strong></td>
+        <td>Ad headlines with CTR and impression data (anonymized campaign context)</td>
+        <td>Fatigue severity score (low/medium/high) and recommended actions per ad</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">
+    <strong>Data minimization:</strong> Only aggregated, non-personal performance metrics are sent to the Claude API. No customer PII, no individual user data, and no full ad account details are transmitted.
+  </div>
+
+  <h3 id="rules">6.5 Automated Rules Engine</h3>
+  <p>Internal users can configure condition-based rules that run on a scheduled cron job (every 6 hours via Supabase pg_cron):</p>
+  <ul>
+    <li><strong>Condition metrics:</strong> CPA, CTR, ROAS, CPC, impressions, clicks, cost, conversions</li>
+    <li><strong>Operators:</strong> greater than, less than, equal to (with configurable threshold)</li>
+    <li><strong>Actions:</strong> Pause campaign, Enable campaign</li>
+    <li><strong>Scope:</strong> All campaigns or a selected subset</li>
+    <li><strong>Logging:</strong> Every rule execution is logged with timestamp, affected campaign IDs, and action taken</li>
+  </ul>
+  <p>Rule executions call <code>campaigns:mutate</code> on the Google Ads API with <code>status: PAUSED</code> or <code>status: ENABLED</code>.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     7. SECURITY
+════════════════════════════════════════════════════ -->
+<section id="security" class="pagebreak">
+  <h2 class="sec">7. Security &amp; Compliance</h2>
+
+  <h3>Credential Security</h3>
+  <ul>
+    <li>The Google Ads Developer Token is stored only as a server-side environment variable in Supabase Edge Functions — never in frontend code or version control</li>
+    <li><code>client_id</code> and <code>client_secret</code> are server-side only; only <code>client_id</code> is exposed to the frontend (as required by OAuth spec)</li>
+    <li>OAuth access and refresh tokens are stored in Supabase with Row-Level Security policies; each user can only access their own tokens</li>
+    <li>The application repository is private; <code>.env</code> files are in <code>.gitignore</code></li>
+  </ul>
+
+  <h3>Transport Security</h3>
+  <ul>
+    <li>All communication between the frontend and Supabase Edge Functions uses HTTPS/TLS 1.2+</li>
+    <li>All Google Ads API calls from Edge Functions use HTTPS</li>
+    <li>CORS headers are restricted to the application's own domain in production</li>
+  </ul>
+
+  <h3>Access Control</h3>
+  <ul>
+    <li>No public registration — only internal team members can authenticate</li>
+    <li>Authentication is strictly delegated to Google OAuth; the application stores no passwords</li>
+    <li>Supabase Row-Level Security ensures data isolation between users</li>
+    <li>API calls to Google Ads always include the authenticated user's access token, ensuring Google's own authorization model is respected</li>
+  </ul>
+
+  <h3>Data Retention &amp; Deletion</h3>
+  <ul>
+    <li>Users can revoke access at any time via Google Account settings (<code>myaccount.google.com/permissions</code>), which invalidates the stored tokens</li>
+    <li>Revoking access removes the ability to make API calls; stored tokens are deleted from the database upon next access attempt</li>
+    <li>Campaign metric data is never persisted — it is fetched on-demand and exists only in memory during the browser session</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     8. POLICY COMPLIANCE
+════════════════════════════════════════════════════ -->
+<section id="policy">
+  <h2 class="sec">8. Google API Services User Data Policy Compliance</h2>
+
+  <p>This application is designed to comply with the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+  <table>
+    <thead>
+      <tr><th>Policy Requirement</th><th>Implementation</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Use data only to provide the app's stated features</td>
+        <td>Google Ads data is used exclusively to render the campaign management UI. No secondary use.</td>
+        <td><span class="chip green">✓ Compliant</span></td>
+      </tr>
+      <tr>
+        <td>Do not transfer data to third parties</td>
+        <td>Data is not shared, sold, or transferred. The only external call is to Anthropic Claude API with anonymized metrics, solely for AI features.</td>
+        <td><span class="chip green">✓ Compliant</span></td>
+      </tr>
+      <tr>
+        <td>Do not use data for advertising</td>
+        <td>No advertising or ad targeting based on retrieved data. The app is an internal tool, not an ad platform.</td>
+        <td><span class="chip green">✓ Compliant</span></td>
+      </tr>
+      <tr>
+        <td>Do not allow humans to read user data</td>
+        <td>No human review of account data except by the authenticated user themselves viewing their own campaigns.</td>
+        <td><span class="chip green">✓ Compliant</span></td>
+      </tr>
+      <tr>
+        <td>Secure data handling</td>
+        <td>HTTPS everywhere, server-side token storage, RLS, no tokens in frontend.</td>
+        <td><span class="chip green">✓ Compliant</span></td>
+      </tr>
+      <tr>
+        <td>Minimum necessary scopes</td>
+        <td>Only <code>adwords</code>, <code>openid</code>, <code>email</code>, and <code>profile</code> scopes are requested.</td>
+        <td><span class="chip green">✓ Compliant</span></td>
+      </tr>
+      <tr>
+        <td>Privacy Policy</td>
+        <td>A privacy policy disclosing data use will be published at the application domain prior to production launch.</td>
+        <td><span class="chip green">✓ Planned</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Affirmation of Intended Use</h3>
+  <div class="info-box green">
+    This application is an <strong>internal tool</strong> used exclusively by employees of Marquesi Digital / Vantari to manage Google Ads campaigns belonging to or managed by our organization. It is not a publicly distributed application. Access to Google Ads data via the API is used <em>only</em> to provide the campaign management functionality described in this document — never for any secondary purpose.
+  </div>
+</section>
+
+<div class="footer-note">
+  Google Ads Manager — Design Document v1.0 &nbsp;|&nbsp; Marquesi Digital / Vantari &nbsp;|&nbsp; May 2026<br>
+  Prepared for Google Ads API Developer Token application
+</div>
+
+</body>
+</html>
